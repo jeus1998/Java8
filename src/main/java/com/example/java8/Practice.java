@@ -1,69 +1,54 @@
 package com.example.java8;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class Practice {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException{
+        Date date = new Date();
+        long time = date.getTime(); // Date(날짜)에서 시간을 가져온다고?
+        System.out.println("time = " + time); // 1970년 부터 현재까지의 시간
+        System.out.println("date = " + date);
 
-        // Optional 생성
-        Optional<String> test1 = Optional.of("test");
-        Optional<String> test2 = Optional.ofNullable(null);
-        Optional<String> test3 = Optional.ofNullable("test3");
-        Optional<String> test4 = Optional.empty();
+        Thread.sleep(1000 * 3); // 3초
+        Date after3Seconds = new Date();
+        System.out.println("after3Seconds = " + after3Seconds);
+        after3Seconds.setTime(time); // mutable 하다. -> thread safe x
+        System.out.println("after3Seconds = " + after3Seconds);
 
-        // Optional get()
-        System.out.println(test1.get()); // test 출력
+        // month 0부터 시작 내 생일은 12월인데 0부터 시작해서 11로 표현 -> 실수할 가능성이 많다.
+        GregorianCalendar myBirthday1 = new GregorianCalendar(1998, 11, 12);
+        GregorianCalendar myBirthday2 = new GregorianCalendar(1998, Calendar.DECEMBER, 12);
+        System.out.println("myBirthday = " + myBirthday2.getTime());
 
-        // System.out.println(test2.get()); // NullSuchElementException
+        // 타입 안정성이 없다. (잘못된 값이 들어올 가능성이 있음)
+        GregorianCalendar wrongMonth = new GregorianCalendar(1998, -2000, 12);
 
+        Instant now = Instant.now(); // 현재 시점의 Instant 객체 생성
+        System.out.println(now);
+        
+        LocalDate localDate = LocalDate.of(2024, 10, 3);
+        System.out.println("localDate = " + localDate);
+        
+        LocalTime localTime = LocalTime.of(15, 30);
+        System.out.println("localTime = " + localTime);
 
-        List<OnlineClass> springClasses = new ArrayList<>();
-        springClasses.add(new OnlineClass(1, "spring boot", true));
-        springClasses.add(new OnlineClass(5, "rest api development", false));
+        LocalDateTime dateTime = LocalDateTime.of(2024, 10, 3, 15, 30);
+        System.out.println("dateTime = " + dateTime);
+        
+        Duration duration = Duration.ofHours(2); // 2시간
+        System.out.println("duration = " + duration);
 
-        // Optional 반환 Stream 종료 연산
-        Optional<OnlineClass> spring = springClasses.stream()
-                .filter(oc -> oc.getTitle().startsWith("spring"))
-                .findFirst();
+        Period period = Period.ofDays(10); // 10일
+        System.out.println("period = " + period);
 
-        boolean present = spring.isPresent();
-        System.out.println("present = " + present); // true
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = dateTime.format(formatter); // "2024-10-03 15:30:00"와 같은 문자열 생성
+        System.out.println("formattedDateTime = " + formattedDateTime);
 
-        Optional<OnlineClass> jpa = springClasses.stream()
-                .filter(oc -> oc.getTitle().startsWith("jpa"))
-                .findAny();
-
-        boolean empty = jpa.isEmpty();
-        System.out.println("empty = " + empty);     // true
-
-        Optional<OnlineClass> optional = springClasses.stream()
-                .filter(oc -> oc.getTitle().startsWith("jpa"))
-                .findFirst();
-
-        OnlineClass onlineClass = optional.orElseGet(Practice::createNewClass);
-        System.out.println(onlineClass.getTitle());
-
-        // default Exception = NoSuchElementException
-        OnlineClass onlineClass1 = optional.orElseThrow(IllegalStateException::new);
-
-
-        List<OnlineClass> classes = new ArrayList<>();
-        classes.add(new OnlineClass(1, "spring class1",true));
-        classes.add(new OnlineClass(2, "spring class2",false));
-
-        Optional<OnlineClass> optional1 = classes.stream().filter(oc -> oc.getId() > 1).findFirst();
-        Optional<Optional<Progress>> progress1 = optional1.map(OnlineClass::getProgress);
-
-        Optional<OnlineClass> optional2 = classes.stream().filter(oc -> oc.getId() > 1).findFirst();
-        Optional<Progress> progress2 = optional2.flatMap(OnlineClass::getProgress);
-
-
-    }
-
-    private static OnlineClass createNewClass() {
-        System.out.println("Practice.createNewClass");
-        return new OnlineClass(10, "new class", false);
     }
 }
