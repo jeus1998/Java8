@@ -1,69 +1,49 @@
 package com.example.java8;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import javax.xml.crypto.Data;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class Practice {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException{
+        Instant instant = Instant.now();// 기준시: UTC GMT 반환
+        System.out.println("instant = " + instant);
+        System.out.println("UTC = " + instant.atZone(ZoneId.of("UTC")));
 
-        // Optional 생성
-        Optional<String> test1 = Optional.of("test");
-        Optional<String> test2 = Optional.ofNullable(null);
-        Optional<String> test3 = Optional.ofNullable("test3");
-        Optional<String> test4 = Optional.empty();
+        ZoneId zone = ZoneId.systemDefault(); // 내 컴퓨터 지역
+        System.out.println("zone = " + zone); // zone = Asia/Seoul
+        ZonedDateTime zonedDateTime = instant.atZone(zone); // Asia/Seoul 시간
+        System.out.println("zonedDateTime = " + zonedDateTime);
 
-        // Optional get()
-        System.out.println(test1.get()); // test 출력
+        System.out.println("==========================================");
 
-        // System.out.println(test2.get()); // NullSuchElementException
-
-
-        List<OnlineClass> springClasses = new ArrayList<>();
-        springClasses.add(new OnlineClass(1, "spring boot", true));
-        springClasses.add(new OnlineClass(5, "rest api development", false));
-
-        // Optional 반환 Stream 종료 연산
-        Optional<OnlineClass> spring = springClasses.stream()
-                .filter(oc -> oc.getTitle().startsWith("spring"))
-                .findFirst();
-
-        boolean present = spring.isPresent();
-        System.out.println("present = " + present); // true
-
-        Optional<OnlineClass> jpa = springClasses.stream()
-                .filter(oc -> oc.getTitle().startsWith("jpa"))
-                .findAny();
-
-        boolean empty = jpa.isEmpty();
-        System.out.println("empty = " + empty);     // true
-
-        Optional<OnlineClass> optional = springClasses.stream()
-                .filter(oc -> oc.getTitle().startsWith("jpa"))
-                .findFirst();
-
-        OnlineClass onlineClass = optional.orElseGet(Practice::createNewClass);
-        System.out.println(onlineClass.getTitle());
-
-        // default Exception = NoSuchElementException
-        OnlineClass onlineClass1 = optional.orElseThrow(IllegalStateException::new);
+        LocalDateTime now = LocalDateTime.now(); // 현재 컴퓨터를 기준으로
+        System.out.println("now = " + now);
 
 
-        List<OnlineClass> classes = new ArrayList<>();
-        classes.add(new OnlineClass(1, "spring class1",true));
-        classes.add(new OnlineClass(2, "spring class2",false));
+        // 만약 잘못된 시간과 날짜 입력시 DateTimeException 발생 -> 타입 안정성이 있다
+        LocalDateTime myBirthday = LocalDateTime.of(1998, 12, 12, 0, 0, 0);
+        System.out.println("myBirthday = " + myBirthday);
 
-        Optional<OnlineClass> optional1 = classes.stream().filter(oc -> oc.getId() > 1).findFirst();
-        Optional<Optional<Progress>> progress1 = optional1.map(OnlineClass::getProgress);
+        ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        System.out.println("nowInKorea = " + nowInKorea);
 
-        Optional<OnlineClass> optional2 = classes.stream().filter(oc -> oc.getId() > 1).findFirst();
-        Optional<Progress> progress2 = optional2.flatMap(OnlineClass::getProgress);
+        LocalDate today = LocalDate.now();
+        LocalDate thisYearBirthday = LocalDate.of(2024, Month.DECEMBER, 12);
 
+        Period between = Period.between(today, thisYearBirthday);
+        System.out.println("between = " + between);                     // 월/일 표현
+        System.out.println("between.getDays() = " + between.getDays()); // 날짜만 가져오기
 
-    }
+        Period until = today.until(thisYearBirthday);
+        System.out.println("until = " + until.getDays());
 
-    private static OnlineClass createNewClass() {
-        System.out.println("Practice.createNewClass");
-        return new OnlineClass(10, "new class", false);
+        Instant nowInstant = Instant.now();
+        Instant plus = nowInstant.plus(10, ChronoUnit.SECONDS);
+        Duration duration = Duration.between(nowInstant, plus);
+        System.out.println("duration.getSeconds() = " + duration.getSeconds());
     }
 }
