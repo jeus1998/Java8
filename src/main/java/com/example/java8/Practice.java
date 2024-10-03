@@ -1,54 +1,49 @@
 package com.example.java8;
 
 
+import javax.xml.crypto.Data;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class Practice {
     public static void main(String[] args) throws InterruptedException{
-        Date date = new Date();
-        long time = date.getTime(); // Date(날짜)에서 시간을 가져온다고?
-        System.out.println("time = " + time); // 1970년 부터 현재까지의 시간
-        System.out.println("date = " + date);
+        Instant instant = Instant.now();// 기준시: UTC GMT 반환
+        System.out.println("instant = " + instant);
+        System.out.println("UTC = " + instant.atZone(ZoneId.of("UTC")));
 
-        Thread.sleep(1000 * 3); // 3초
-        Date after3Seconds = new Date();
-        System.out.println("after3Seconds = " + after3Seconds);
-        after3Seconds.setTime(time); // mutable 하다. -> thread safe x
-        System.out.println("after3Seconds = " + after3Seconds);
+        ZoneId zone = ZoneId.systemDefault(); // 내 컴퓨터 지역
+        System.out.println("zone = " + zone); // zone = Asia/Seoul
+        ZonedDateTime zonedDateTime = instant.atZone(zone); // Asia/Seoul 시간
+        System.out.println("zonedDateTime = " + zonedDateTime);
 
-        // month 0부터 시작 내 생일은 12월인데 0부터 시작해서 11로 표현 -> 실수할 가능성이 많다.
-        GregorianCalendar myBirthday1 = new GregorianCalendar(1998, 11, 12);
-        GregorianCalendar myBirthday2 = new GregorianCalendar(1998, Calendar.DECEMBER, 12);
-        System.out.println("myBirthday = " + myBirthday2.getTime());
+        System.out.println("==========================================");
 
-        // 타입 안정성이 없다. (잘못된 값이 들어올 가능성이 있음)
-        GregorianCalendar wrongMonth = new GregorianCalendar(1998, -2000, 12);
+        LocalDateTime now = LocalDateTime.now(); // 현재 컴퓨터를 기준으로
+        System.out.println("now = " + now);
 
-        Instant now = Instant.now(); // 현재 시점의 Instant 객체 생성
-        System.out.println(now);
-        
-        LocalDate localDate = LocalDate.of(2024, 10, 3);
-        System.out.println("localDate = " + localDate);
-        
-        LocalTime localTime = LocalTime.of(15, 30);
-        System.out.println("localTime = " + localTime);
 
-        LocalDateTime dateTime = LocalDateTime.of(2024, 10, 3, 15, 30);
-        System.out.println("dateTime = " + dateTime);
-        
-        Duration duration = Duration.ofHours(2); // 2시간
-        System.out.println("duration = " + duration);
+        // 만약 잘못된 시간과 날짜 입력시 DateTimeException 발생 -> 타입 안정성이 있다
+        LocalDateTime myBirthday = LocalDateTime.of(1998, 12, 12, 0, 0, 0);
+        System.out.println("myBirthday = " + myBirthday);
 
-        Period period = Period.ofDays(10); // 10일
-        System.out.println("period = " + period);
+        ZonedDateTime nowInKorea = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        System.out.println("nowInKorea = " + nowInKorea);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = dateTime.format(formatter); // "2024-10-03 15:30:00"와 같은 문자열 생성
-        System.out.println("formattedDateTime = " + formattedDateTime);
+        LocalDate today = LocalDate.now();
+        LocalDate thisYearBirthday = LocalDate.of(2024, Month.DECEMBER, 12);
 
+        Period between = Period.between(today, thisYearBirthday);
+        System.out.println("between = " + between);                     // 월/일 표현
+        System.out.println("between.getDays() = " + between.getDays()); // 날짜만 가져오기
+
+        Period until = today.until(thisYearBirthday);
+        System.out.println("until = " + until.getDays());
+
+        Instant nowInstant = Instant.now();
+        Instant plus = nowInstant.plus(10, ChronoUnit.SECONDS);
+        Duration duration = Duration.between(nowInstant, plus);
+        System.out.println("duration.getSeconds() = " + duration.getSeconds());
     }
 }
