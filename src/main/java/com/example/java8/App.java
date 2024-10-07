@@ -1,48 +1,48 @@
 package com.example.java8;
+import java.lang.annotation.*;
+import java.util.ArrayList;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.*;
-import java.util.stream.*;
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface DateTime{
+    String yymmdd(); // 날짜
+    String hhmmss(); // 시간
+}
+enum TestType{
+    FIRST, SECOND
+}
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@interface TestInfo{
+    int count();
+    String testedBy();
+    String[] testTools();
+    TestType testType();
+    DateTime testDate();
+}
+
+@TestInfo(
+        count = 3,
+        testedBy = "bae",
+        testTools = {"Junit5", "AutoTester"},
+        testType = TestType.FIRST,
+        testDate = @DateTime(yymmdd = "240101", hhmmss = "235959")
+)
 public class App {
-    public static void main(String[] args) throws Exception {
-        boolean throwError = true;
+    public static void main(String[] args)  {
+        App app1 = new App();
+        TestInfo anno1 = app1.getClass().getAnnotation(TestInfo.class);
 
-        CompletableFuture<String> hello = CompletableFuture.supplyAsync(() -> {
-            if(throwError){
-                throw new IllegalStateException();
-            }
-            System.out.println("Hello " + Thread.currentThread().getName());
-            return "Hello";
-        }).handle((result, ex) -> {
-            if(ex != null){
-                System.out.println(ex);
-                return "ERROR!";
-            }
-            return result;
-        });
-        System.out.println(hello.get());
+        Class<App> cls = App.class; // 메타 데이터 가져오기
+        TestInfo anno2 = cls.getAnnotation(TestInfo.class);
 
-        /*
-        CompletableFuture<String> world = CompletableFuture.supplyAsync(() -> {
-            System.out.println("World " + Thread.currentThread().getName());
-            return "World";
-        });
+        int count = anno1.count();
+        System.out.println("count = " + count);
+        DateTime dateTime = anno1.testDate();
+        System.out.println("dateTime = " + dateTime);
 
-        CompletableFuture<Object> future = CompletableFuture
-                .anyOf(hello, world)
-                .thenApply(s -> s);
-
-        System.out.println(future.get());
-
-        List<CompletableFuture<String>> futures = Arrays.asList(hello, world);
-        CompletableFuture[] futuresArray = futures.toArray(new CompletableFuture[futures.size()]);
-
-        // f.get() checked exception 발생 f.join() unchecked exception 발생
-        CompletableFuture<List<String>> futureList = CompletableFuture
-                .allOf(futuresArray)
-                .thenApply(v -> futures.stream().map(CompletableFuture::join).collect(Collectors.toList()));
-
-        futureList.get().forEach(System.out::println);
-         */
+        for(String tool : anno1.testTools()){
+            System.out.println("tool = " + tool);
+        }
     }
 }
